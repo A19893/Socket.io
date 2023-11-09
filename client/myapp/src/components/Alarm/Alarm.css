@@ -1,0 +1,84 @@
+/* src/components/AlarmClock.css */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  label {
+    font-size: 16px;
+  }
+  
+  input[type="time"] {
+    font-size: 16px;
+    margin: 10px 0;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  button {
+    font-size: 16px;
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  #current-alarm {
+    font-size: 20px;
+    color: #007BFF;
+    margin: 20px 0;
+  }
+  
+  #alarm-status {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #333;
+  }
+  /* CSS for the alarm list */
+.alarm-status1 {
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+}
+
+.alarm-item {
+  font-size: 18px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Add more styles as needed */
+.delete-button {
+  background-color: #ff5733;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px; /* Adjust this margin as needed */
+}
+
+.delete-button:hover {
+  background-color: #ff2211;
+}
