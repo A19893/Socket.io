@@ -7,7 +7,7 @@ const connectWithDataBase = require('./config/connectWithDatabase')
 const http = require("http").Server(app);
 const dotenv = require("dotenv");
 const ioManager = require('./config/ioManager');
-dotenv.config({ path: "./.env.dev" });
+dotenv.config({ path: "./.env" });
 
 
 ioManager.init(http);
