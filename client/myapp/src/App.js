@@ -13,10 +13,9 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-         { Auth && <Route path="/alarm" element={<AlarmClock socket={socket}/>} />}
-          <Route path="*" element={<Login />} />
+          {!Auth && <Route path="/" element={<Register />} />}
+          {!Auth &&<Route path="/login" element={<Login />} />}
+          {Auth && <Route path="/" element={<AlarmClock socket={socket}/>} />}
         </Routes>
       </BrowserRouter>
     </div>
