@@ -8,14 +8,14 @@ import { useSelector } from "react-redux";
 const socket = socketIO.connect("http://localhost:8080");
 
 function App() {
-  const Auth=useSelector((state)=>state.authentication.isAuth)
+  const Auth = useSelector((state) => state.authentication.isAuth);
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
           {!Auth && <Route path="/" element={<Register />} />}
-          {!Auth &&<Route path="/login" element={<Login />} />}
-          {Auth && <Route path="/" element={<AlarmClock socket={socket}/>} />}
+          {!Auth && <Route path="/login" element={<Login />} />}
+          {Auth && <Route path="/" element={<AlarmClock socket={socket} />} />}
         </Routes>
       </BrowserRouter>
     </div>

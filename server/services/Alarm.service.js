@@ -8,11 +8,11 @@ const createAlarmService = async (req, res) => {
     const AlarmData = req.body.data;
     const AlarmCreation = new AlarmModel(AlarmData);
     const CreationResponse = await AlarmCreation.save();
-    const scheduledTime = new Date(AlarmData.time);
-    const id = CreationResponse.alarmId;
-    schedule.scheduleJob(id, scheduledTime, () => {
-      io.emit(AlarmData.userId, "Alarm goes off!!");
-    });
+    // const scheduledTime = new Date(AlarmData.time);
+    // const id = CreationResponse.alarmId;
+    // schedule.scheduleJob(id, scheduledTime, () => {
+    //   io.emit(AlarmData.userId, "Alarm goes off!!");
+    // });
     return res.status(201).json({
       message: "Alarm Created Successfully",
       data: CreationResponse,
@@ -25,7 +25,17 @@ const createAlarmService = async (req, res) => {
 const GetAlarmService = async (req, res) => {
   try {
     const userId = req.params.id;
-    const Alarms = await AlarmModel.find({ userId: userId });
+    const Alarms = await AlarmModel.find({ userId: userId, delay:10000, isDeleted:false});
+    return res.status(200).json(Alarms);
+  } catch (err) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+const DueAlarmService = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const Alarms = await AlarmModel.find({ userId: userId, delay: { $lte: 10000 } });
     return res.status(200).json(Alarms);
   } catch (err) {
     return res.status(500).json({ error: error.message });
@@ -59,4 +69,5 @@ module.exports = {
   createAlarmService,
   GetAlarmService,
   CancelAlarmService,
+  DueAlarmService
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Alarm.css";
-import { CancelAlarm, CreateAlarm, GetAlarm } from "../../services/CreateAlarm";
+import { CancelAlarm, CreateAlarm, DueAlarm, GetAlarm } from "../../services/CreateAlarm";
 import { modifyTime } from "../../utils/modifyAlarm";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
 import { useSelector, useDispatch } from "react-redux";
@@ -13,15 +13,55 @@ function AlarmClock({ socket }) {
   const email = useSelector((state) => state.authentication.email);
   const Alarms = useSelector((state) => state.alarms.Alarms);
 
-  useEffect(() => {
-    socket.on("show-notify", (data) => {
-      handleAlarmSet(data.time);
-    });
-    socket.on(userId, (data) => {
-      notifyAlarm(data);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket]);
+  // useEffect(() => {
+  //   socket.on("show-notify", (data) => {
+  //     handleAlarmSet(data.time);
+  //   });
+  //   socket.on(userId, (data) => {
+  //     notifyAlarm(data);
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [socket]);
+  let alarmQueue = [];
+  const handleAlarmsFromBackend = async alarms => {
+    alarmQueue.push(alarms);
+  };
+
+  
+  const fetchAlarmsFromBackend = async () => {
+    try {
+      const response = await DueAlarm(userId);
+      console.log(response,"due")
+      const alarms = await response.data;
+      handleAlarmsFromBackend(alarms);
+    } catch (error) {
+      console.error('Error fetching alarms from backend:', error);
+    }
+  };
+  
+  const scheduleNotifications = () => {
+    while (alarmQueue.length > 0) {
+      const alarms = alarmQueue.shift();
+  
+      for (const alarm of alarms) {
+        // Schedule a notification for the alarm
+        const alarmTime = alarm.dueAt - new Date();
+        setTimeout(() => {
+          notifyAlarm(`Alarm goes off for ${alarmTime}`);
+        }, alarmTime);
+      }
+    }
+  };
+
+  
+// Use setInterval with a named function to avoid naming conflicts
+const fetchAndSchedule = () => {
+  fetchAlarmsFromBackend();
+  scheduleNotifications();
+};
+
+// Set up the interval with the named function
+const timer = setInterval(fetchAndSchedule, 10000);
 
   useEffect(() => {
     const getSavedAlarm = async () => {
@@ -38,7 +78,6 @@ function AlarmClock({ socket }) {
   }, []);
 
   const handleAlarmSet = (time) => {
-    console.log(time);
     const parsedDate = new Date(time);
     const options = { hour: "2-digit", minute: "2-digit" };
     const timeString = parsedDate.toLocaleTimeString([], options);
@@ -62,24 +101,27 @@ function AlarmClock({ socket }) {
     console.log(err);
   }
   }
+
   const notifyAlarm = (data) => {
     enqueueSnackbar(data, { variant: "success", autoHideDuration: 5000 });
   };
 
   const setAlarm = async () => {
-    console.log(alarmTime);
-    const alarmDate = modifyTime(alarmTime);
+    const delayInSeconds = (new Date(alarmTime) - new Date()) / 1000;
+    const time= modifyTime(alarmTime)
     const data = {
       userId: userId,
-      time: alarmDate,
+      delay: delayInSeconds,
+      time: time,
       isDeleted: false,
       submittedBy: email,
     };
     try {
       const response = await CreateAlarm(data);
       if (response) {
-        socket.emit("alarm-set", { time: alarmDate }); 
+        // socket.emit("alarm-set", { time: alarmDate }); 
         dispatch(addAlarm(response.data.data));
+        handleAlarmSet(alarmTime)
         setAlarmTime("");
       }
     } catch (err) {
@@ -98,7 +140,7 @@ function AlarmClock({ socket }) {
         placeholder="e.g., 2023-11-05T13:30:00"
         required
         style={{ marginRight: "2rem", padding: ".6rem" }}
-        // value={alarmTime}
+        value={alarmTime}
         onChange={(e) => setAlarmTime(e.target.value)}
       />
       <button className="set-alarm-button" onClick={setAlarm}>

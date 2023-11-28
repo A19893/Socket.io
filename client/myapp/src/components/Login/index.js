@@ -30,7 +30,7 @@ function Login() {
           );
           setPassword("");
           setEmail("");
-          navigate("/alarm");
+          navigate("/");
         }
       } else if (res.status === 200) {
         alert("You are Not a Registered User");
