@@ -1,4 +1,4 @@
-const { createAlarmService, GetAlarmService, CancelAlarmService, DueAlarmService } = require("../services/Alarm.service");
+const { createAlarmService, GetAlarmService, CancelAlarmService, DueAlarmService, UpdateAlarmService } = require("../services/Alarm.service");
 
 
 const createAlarm = async(req,res)=>{
@@ -16,6 +16,11 @@ const dueAlarm = async(req,res)=>{
     return response;
 }
 
+const updateAlarm = async(req,res)=>{
+    const response = UpdateAlarmService(req,res);
+    return response;
+}
+
 const deleteAlarm = async(req,res)=>{
     const response = CancelAlarmService(req,res);
     return response;
@@ -24,6 +29,7 @@ const deleteAlarm = async(req,res)=>{
 module.exports={
     createAlarm,
     getAlarm,
+    updateAlarm,
     deleteAlarm,
     dueAlarm
 }

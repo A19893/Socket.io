@@ -1,6 +1,7 @@
 const AlarmModel = require("../models/Alarm");
 var schedule = require("node-schedule");
 const ioManager = require("../config/ioManager");
+const { default: mongoose } = require("mongoose");
 
 const createAlarmService = async (req, res) => {
   const io = ioManager.getIo();
@@ -25,7 +26,10 @@ const createAlarmService = async (req, res) => {
 const GetAlarmService = async (req, res) => {
   try {
     const userId = req.params.id;
-    const Alarms = await AlarmModel.find({ userId: userId, delay:10000, isDeleted:false});
+    const Alarms = await AlarmModel.find({
+      userId: userId,
+      isDeleted: false, 
+    });
     return res.status(200).json(Alarms);
   } catch (err) {
     return res.status(500).json({ error: error.message });
@@ -35,12 +39,41 @@ const GetAlarmService = async (req, res) => {
 const DueAlarmService = async (req, res) => {
   try {
     const userId = req.params.id;
-    const Alarms = await AlarmModel.find({ userId: userId, delay: { $lte: 100000 } });
+    const Alarms = await AlarmModel.find({
+      userId: userId,
+      delay: { $lte: 500000 },
+      isDeleted: false, 
+    });
     return res.status(200).json(Alarms);
-  } catch (err) {
+  } catch (err) { 
     return res.status(500).json({ error: error.message });
   }
 };
+
+const UpdateAlarmService = async (req, res) => {
+  try {
+    const userId = req.params.id;
+ 
+    const updateFields = req.body;
+
+    const updatedAlarm = await AlarmModel.findByIdAndUpdate(
+      {_id: userId},
+      { $set: updateFields },
+      { new: true }
+    );
+
+
+    if (!updatedAlarm) {
+      return res.status(404).json({ error: 'Alarm not found' });
+    }
+
+    return res.status(200).json(updatedAlarm);
+  } catch (err) {
+    console.error('Error updating alarm:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
 
 const CancelAlarmService = async (req, res) => {
   // Retrieve the alarm details from the database
@@ -48,7 +81,7 @@ const CancelAlarmService = async (req, res) => {
   console.log(id);
   const alarmDetails = await AlarmModel.findById(id);
   if (alarmDetails) {
-    const { alarmId } = alarmDetails;
+    const { alarmId } = alarmDetails; 
     // Cancel the scheduled job using node-schedule
     const job = schedule.cancelJob(alarmId);
     console.log(job);
@@ -68,6 +101,7 @@ const CancelAlarmService = async (req, res) => {
 module.exports = {
   createAlarmService,
   GetAlarmService,
+  UpdateAlarmService,
   CancelAlarmService,
-  DueAlarmService
+  DueAlarmService,
 };
