@@ -22,6 +22,7 @@ function AlarmClock({ socket }) {
   //   });
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [socket]);
+  
   let alarmQueue = [];
   const handleAlarmsFromBackend = async alarms => {
     alarmQueue.push(alarms);
@@ -42,12 +43,13 @@ function AlarmClock({ socket }) {
   const scheduleNotifications = () => {
     while (alarmQueue.length > 0) {
       const alarms = alarmQueue.shift();
-  
+       
       for (const alarm of alarms) {
         // Schedule a notification for the alarm
-        const alarmTime = alarm.dueAt - new Date();
+        const alarmTime =  new Date()-alarm.delay;
+        console.log(alarmTime)
         setTimeout(() => {
-          notifyAlarm(`Alarm goes off for ${alarmTime}`);
+          notifyAlarm(`Alarm goes off for`);
         }, alarmTime);
       }
     }
@@ -61,7 +63,14 @@ const fetchAndSchedule = () => {
 };
 
 // Set up the interval with the named function
-const timer = setInterval(fetchAndSchedule, 10000);
+useEffect(() => {
+  // Set up the interval with the named function
+  const timer = setInterval(fetchAndSchedule, 10000);
+
+  // Clean up the interval on component unmount
+  return () => clearInterval(timer);
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   useEffect(() => {
     const getSavedAlarm = async () => {
@@ -107,11 +116,11 @@ const timer = setInterval(fetchAndSchedule, 10000);
   };
 
   const setAlarm = async () => {
-    const delayInSeconds = (new Date(alarmTime) - new Date()) / 1000;
+    const delayInMilliseconds = new Date(alarmTime).getTime() - new Date().getTime();
     const time= modifyTime(alarmTime)
     const data = {
       userId: userId,
-      delay: delayInSeconds,
+      delay: delayInMilliseconds,
       time: time,
       isDeleted: false,
       submittedBy: email,

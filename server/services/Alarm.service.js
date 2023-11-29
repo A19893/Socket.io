@@ -35,7 +35,7 @@ const GetAlarmService = async (req, res) => {
 const DueAlarmService = async (req, res) => {
   try {
     const userId = req.params.id;
-    const Alarms = await AlarmModel.find({ userId: userId, delay: { $lte: 10000 } });
+    const Alarms = await AlarmModel.find({ userId: userId, delay: { $lte: 100000 } });
     return res.status(200).json(Alarms);
   } catch (err) {
     return res.status(500).json({ error: error.message });
