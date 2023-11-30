@@ -4,7 +4,7 @@
       this.io = io;
 
       console.log(`⚡: ${socket.id} user just connected!`)
-
+ 
       socket.on("alarm-set",(data)=>{
         socket.emit("show-notify",{time: data.time})
       })

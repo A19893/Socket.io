@@ -11,15 +11,15 @@ const getAlarm = async(req,res)=>{
     return response;
 }
 
-const dueAlarm = async(req,res)=>{
-    const response = DueAlarmService(req,res);
-    return response;
-}
+// const dueAlarm = async(req,res)=>{
+//     const response = DueAlarmService(req,res);
+//     return response;
+// }
 
-const updateAlarm = async(req,res)=>{
-    const response = UpdateAlarmService(req,res);
-    return response;
-}
+// const updateAlarm = async(req,res)=>{
+//     const response = UpdateAlarmService(req,res);
+//     return response;
+// }
 
 const deleteAlarm = async(req,res)=>{
     const response = CancelAlarmService(req,res);
@@ -29,7 +29,7 @@ const deleteAlarm = async(req,res)=>{
 module.exports={
     createAlarm,
     getAlarm,
-    updateAlarm,
+    // updateAlarm,
     deleteAlarm,
-    dueAlarm
+    // dueAlarm
 }

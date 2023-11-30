@@ -3,9 +3,9 @@ import "./Alarm.css";
 import {
   CancelAlarm,
   CreateAlarm,
-  DueAlarm,
+  // DueAlarm,
   GetAlarm,
-  UpdateAlarm,
+  // UpdateAlarm,
 } from "../../services/CreateAlarm";
 import { modifyTime } from "../../utils/modifyAlarm";
 import { SnackbarProvider, enqueueSnackbar } from "notistack";
@@ -14,86 +14,80 @@ import { addAlarm, cancelAlarm, getAlarms } from "../../features/Alarm";
 
 function AlarmClock({ socket }) {
   const [alarmTime, setAlarmTime] = useState("");
-  const [currentTime, setCurrentTime] = useState("");
   const dispatch = useDispatch();
   const userId = useSelector((state) => state.authentication.userId);
   const email = useSelector((state) => state.authentication.email);
   const Alarms = useSelector((state) => state.alarms.Alarms);
 
-  // useEffect(() => {
-  //   socket.on("show-notify", (data) => {
-  //     handleAlarmSet(data.time);
-  //   });
-  //   socket.on(userId, (data) => {
-  //     notifyAlarm(data);
-  //   });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [socket]);
-
   useEffect(() => {
-    const updateCurrentTime = () => {
-      const now = new Date();
-      const formattedTime = now.toLocaleString('en-US', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-        timeZone: 'UTC', // Adjust the timeZone as needed
-      });
-      setCurrentTime(formattedTime);
-    };
-    updateCurrentTime();
-},[alarmTime])
-  let alarmQueue = [];
-  const handleAlarmsFromBackend = async (alarms) => {
-    alarmQueue.push(alarms);
-  };
+    socket.on("show-notify", (data) => {
+      handleAlarmSet(data.time);
+    });
+    socket.on(userId, (data) => {
+      notifyAlarm(data);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket]);
 
-  const fetchAlarmsFromBackend = async () => {
-    try {
-      const response = await DueAlarm(userId);
-      console.log(response, "due");
-      const alarms = await response.data;
-      handleAlarmsFromBackend(alarms);
-    } catch (error) {
-      console.error("Error fetching alarms from backend:", error);
-    }
-  };
+  // const updateCurrentTime = (date) => {
+  //   console.log(date)
+  //   const timestamp = date;
 
-  const scheduleNotifications = () => {
-    console.log(alarmQueue);
-    while (alarmQueue.length > 0) {
-      const alarms = alarmQueue.shift();
+  //   // Format the date in a specific time zone
+  //   const formattedDate = format(timestamp, "yyyy-MM-dd'T'HH:mm:ss", {
+  //     timeZone: "Asia/Kolkata",
+  //   });
+  //   return formattedDate;
+  // };
+  // let alarmQueue = [];
+  // const handleAlarmsFromBackend = async (alarms) => {
+  //   alarmQueue.push(alarms);
+  // };
 
-      for (const alarm of alarms) {
-        // Schedule a notification for the alarm
-        setTimeout(() => {
-          notifyAlarm(`Alarm goes off`);
-        }, alarm.delay);
-        UpdateAlarm(alarm._id);
-      }
-    }
-  };
+  // const fetchAlarmsFromBackend = async () => {
+  //   try {
+  //     const response = await DueAlarm(userId);
+  //     console.log(response, "due");
+  //     const alarms = await response.data;
+  //     handleAlarmsFromBackend(alarms);
+  //   } catch (error) {
+  //     console.error("Error fetching alarms from backend:", error);
+  //   }
+  // };
+
+  // const scheduleNotifications = () => {
+  //   console.log(alarmQueue);
+  //   while (alarmQueue.length > 0) {
+  //     const alarms = alarmQueue.shift();
+
+  //     for (const alarm of alarms) {
+  //       // Schedule a notification for the alarm
+  //       console.log(alarm);
+  //       setTimeout(() => {
+  //         notifyAlarm(`Alarm goes off`);
+  //         console.log("Älarm baj gyaa");
+  //       }, alarm.delay);
+  //       UpdateAlarm(alarm._id);
+  //     }
+  //   }
+  // };
 
   // Use setInterval with a named function to avoid naming conflicts
-  const fetchAndSchedule = () => {
-    fetchAlarmsFromBackend();
-    scheduleNotifications();
-  };
+  // const fetchAndSchedule = () => {
+  //   fetchAlarmsFromBackend();
+  //   scheduleNotifications();
+  // };
+
+  // useEffect(() => {
+  //   const timer = setInterval(fetchAndSchedule, 10000);
+  //   return () => clearInterval(timer);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   useEffect(() => {
-    const timer = setInterval(fetchAndSchedule, 30000);
-    return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const getSavedAlarm = async () => {
+    const getSavedAlarm = async () => { 
       try {
         const savedAlarms = await GetAlarm(userId);
-        console.log(savedAlarms);
         dispatch(getAlarms(savedAlarms.data));
       } catch (err) {
         console.log(err);
@@ -120,7 +114,7 @@ function AlarmClock({ socket }) {
     try {
       const response = await CancelAlarm(id);
       if (response) {
-        // socket.emit(`${userId}-cancel`, { message: "Alarm Cancelled!!" });
+        socket.emit(`${userId}-cancel`, { message: "Alarm Cancelled!!" });
         dispatch(cancelAlarm(id));
       }
     } catch (err) {
@@ -133,12 +127,13 @@ function AlarmClock({ socket }) {
   };
 
   const setAlarm = async () => {
-    console.log(currentTime, alarmTime)
-    const delayInMilliseconds = new Date(alarmTime).getTime() - new Date(currentTime).getTime();
+    console.log(alarmTime);
+    // const delayInMilliseconds =
+    //   new Date(alarmTime).getTime() - new Date(currentTime).getTime();
     const time = modifyTime(alarmTime);
     const data = {
       userId: userId,
-      delay: delayInMilliseconds,
+      // delay: delayInMilliseconds,
       time: time,
       isDeleted: false,
       submittedBy: email,
@@ -146,9 +141,9 @@ function AlarmClock({ socket }) {
     try {
       const response = await CreateAlarm(data);
       if (response) {
-        // socket.emit("alarm-set", { time: alarmDate });
+        socket.emit("alarm-set", { time: alarmTime });
         dispatch(addAlarm(response.data.data));
-        handleAlarmSet(alarmTime);
+        // handleAlarmSet(alarmTime);
         setAlarmTime("");
       }
     } catch (err) {
@@ -162,13 +157,14 @@ function AlarmClock({ socket }) {
       <h1>Alarm Clock</h1>
       <label className="alarm-label">Select Alarm Time:</label>
       <input
-        type="datetime-local"
-        className="alarm-time-input"
-        placeholder="e.g., 2023-11-05T13:30:00"
-        required
-        style={{ marginRight: "2rem", padding: ".6rem" }}
+        type="datetime-local" 
+        id="meeting-time"
+        name="meeting-time"
         value={alarmTime}
-        onChange={(e) =>{ setAlarmTime(e.target.value); setCurrentTime(new Date().getTime());}}
+        onChange={(e) => 
+          setAlarmTime(e.target.value)
+          // setCurrentTime(updateCurrentTime(new Date().getTime()));
+        }
       />
       <button className="set-alarm-button" onClick={setAlarm}>
         Set Alarm

@@ -7,9 +7,9 @@ router.post('/', createAlarm);
 
 router.get('/:id', getAlarm)
 
-router.patch('/:id', updateAlarm)
+// router.patch('/:id', updateAlarm)
 
-router.get('/due/:id', dueAlarm)
+// router.get('/due/:id', dueAlarm)
 
 router.delete('/:id', deleteAlarm);
 

@@ -16,10 +16,10 @@ const AlarmSchema = new Schema({
   userId: {
     type: String,
   },
-  delay: {
-    type: Number,
-    required: true,
-  },
+  // delay: {
+  //   type: Number,
+  //   required: true,
+  // },
   time:{
     type: String,
     required: true,
